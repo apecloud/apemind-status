@@ -16,122 +16,439 @@ status-website:
   logoUrl: https://apemind.ai/favicon.ico
   name: ApeMind Status
   introTitle: ApeMind service status
-  introMessage: External checks run against the Singapore production Web and API endpoints. Chat and document processing are maintained by the on-call team through incident updates.
+  introMessage: Live service availability for ApeMind.
   theme: light
   navbar:
     - title: Status
       href: /
     - title: ApeMind
       href: https://apemind.ai/
-  customBodyHtml: |
-    <section class="manual-components" aria-labelledby="manual-components-title">
-      <div class="manual-components__heading">
-        <h2 id="manual-components-title">Application components</h2>
-        <p>Maintained by the on-call team</p>
-      </div>
-      <div class="manual-component">
-        <div><strong>Chat</strong><span>Conversation and model responses</span></div>
-        <span class="manual-component__state">No active incident</span>
-      </div>
-      <div class="manual-component">
-        <div><strong>Document Processing &amp; Search</strong><span>Upload, processing, indexing, and retrieval</span></div>
-        <span class="manual-component__state">No active incident</span>
-      </div>
-    </section>
   js: |
-    function mountManualComponents() {
-      var components = document.querySelector(".manual-components");
-      var main = document.querySelector("main");
-      if (components && main) {
-        main.appendChild(components);
-        components.classList.add("manual-components--ready");
+    var MONITORING_STARTED = "2026-08-01";
+    var COMPONENTS = [
+      { name: "Web", slug: "web", mode: "automatic" },
+      { name: "API Entry", slug: "api-entry", mode: "automatic" },
+      { name: "Chat", mode: "manual" },
+      { name: "Document Processing & Search", mode: "manual" }
+    ];
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>'"]/g, function (character) {
+        return { "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[character];
+      });
+    }
+
+    function dateKey(date) {
+      return date.toISOString().slice(0, 10);
+    }
+
+    function makeBars(component, summary) {
+      var today = new Date();
+      today.setUTCHours(0, 0, 0, 0);
+      var downtime = summary && summary.dailyMinutesDown ? summary.dailyMinutesDown : {};
+      var bars = [];
+
+      for (var index = 89; index >= 0; index -= 1) {
+        var day = new Date(today);
+        day.setUTCDate(today.getUTCDate() - index);
+        var key = dateKey(day);
+        var state = "unknown";
+        var label = key + ": no monitoring data";
+
+        if (component.mode === "automatic" && key >= MONITORING_STARTED) {
+          var minutesDown = Number(downtime[key] || 0);
+          state = minutesDown >= 1440 ? "down" : minutesDown > 0 ? "degraded" : "up";
+          if (key === dateKey(today) && summary && summary.status === "down") state = "down";
+          label = key + (state === "up" ? ": operational" : state === "down" ? ": outage" : ": partial interruption");
+        } else if (component.mode === "manual" && key === dateKey(today)) {
+          state = "up";
+          label = key + ": no active incident reported";
+        }
+
+        bars.push('<span class="uptime-bar uptime-bar--' + state + '" title="' + escapeHtml(label) + '" aria-label="' + escapeHtml(label) + '"></span>');
       }
+      return bars.join("");
+    }
+
+    function componentRow(component, summaries) {
+      var summary = summaries.filter(function (item) { return item.slug === component.slug; })[0];
+      var isUp = component.mode === "manual" || (summary && summary.status === "up");
+      var state = isUp ? "Operational" : summary ? "Service disruption" : "Status unavailable";
+      var metric = component.mode === "manual" ? "Manual status" : summary ? summary.uptime + " uptime" : "Awaiting data";
+      return [
+        '<article class="system-row">',
+          '<div class="system-row__headline">',
+            '<div class="system-row__name"><span class="status-mark status-mark--' + (isUp ? "up" : "down") + '" aria-hidden="true">' + (isUp ? "&#10003;" : "!") + '</span><h3>' + escapeHtml(component.name) + '</h3></div>',
+            '<div class="system-row__meta"><span>' + escapeHtml(metric) + '</span><strong>' + escapeHtml(state) + '</strong></div>',
+          '</div>',
+          '<div class="uptime-bars" role="img" aria-label="90-day availability history for ' + escapeHtml(component.name) + '">' + makeBars(component, summary) + '</div>',
+        '</article>'
+      ].join("");
+    }
+
+    function renderStatusPage(summaries) {
+      var root = document.getElementById("apemind-status-root");
+      if (!root) return;
+      var automatic = summaries.filter(function (item) { return item.status === "up"; }).length;
+      var allOperational = automatic === 2;
+      root.innerHTML = [
+        '<header class="site-header"><a class="brand" href="/" aria-label="ApeMind Status home"><img src="https://apemind.ai/favicon.ico" alt=""><span>ApeMind</span></a><a class="service-link" href="https://apemind.ai/">ApeMind home</a></header>',
+        '<main class="status-main">',
+          '<section class="overview overview--' + (allOperational ? "up" : "down") + '" aria-labelledby="overview-title">',
+            '<div class="overview__title"><span class="status-mark status-mark--' + (allOperational ? "up" : "down") + '" aria-hidden="true">' + (allOperational ? "&#10003;" : "!") + '</span><h1 id="overview-title">' + (allOperational ? "All systems operational" : "Some systems are experiencing issues") + '</h1></div>',
+            '<p>' + (allOperational ? "We are not aware of any issues affecting ApeMind services." : "The on-call team is investigating the affected service.") + '</p>',
+          '</section>',
+          '<section class="systems" aria-labelledby="systems-title">',
+            '<div class="systems__heading"><h2 id="systems-title">System status</h2><span>90-day history</span></div>',
+            COMPONENTS.map(function (component) { return componentRow(component, summaries); }).join(""),
+          '</section>',
+          '<div class="history-key"><span><i class="key-swatch key-swatch--up"></i>Operational</span><span><i class="key-swatch key-swatch--degraded"></i>Partial interruption</span><span><i class="key-swatch key-swatch--unknown"></i>No data</span></div>',
+        '</main>',
+        '<footer class="status-footer"><p>Automatic checks run every 5 minutes. Chat and document processing are maintained by the on-call team.</p><a href="https://github.com/apecloud/apemind-status/issues">Incident history</a></footer>'
+      ].join("");
+    }
+
+    function mountStatusPage() {
+      if (document.getElementById("apemind-status-root")) return;
+      var root = document.createElement("div");
+      root.id = "apemind-status-root";
+      root.innerHTML = '<div class="status-loading" aria-live="polite"><span></span><span></span><span></span><span></span></div>';
+      document.body.insertBefore(root, document.getElementById("sapper"));
+      fetch("https://raw.githubusercontent.com/apecloud/apemind-status/master/history/summary.json", { cache: "no-store" })
+        .then(function (response) { if (!response.ok) throw new Error("status data unavailable"); return response.json(); })
+        .then(renderStatusPage)
+        .catch(function () { renderStatusPage([]); });
     }
     if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", mountManualComponents, { once: true });
+      document.addEventListener("DOMContentLoaded", mountStatusPage, { once: true });
     } else {
-      mountManualComponents();
+      mountStatusPage();
     }
   css: |
     :root {
-      --body-background-color: #f7f8fa;
-      --body-text-color: #20242a;
+      --body-background-color: #ffffff;
+      --body-text-color: #202123;
       --card-background-color: #ffffff;
       --nav-background-color: #ffffff;
-      --nav-border-bottom-color: #e3e6ea;
-      --nav-current-border-bottom-color: #18794e;
-      --card-border-color: #dfe3e8;
-      --down-border-left-color: #c9372c;
-      --down-background-color: #fff7f6;
-      --degraded-border-left-color: #b86e00;
-      --up-border-left-color: #18794e;
+      --nav-border-bottom-color: #e5e5e5;
+      --nav-current-border-bottom-color: #10a37f;
+      --card-border-color: #dedede;
+      --down-border-left-color: #d00e17;
+      --down-background-color: #fff5f5;
+      --degraded-border-left-color: #e5a000;
+      --up-border-left-color: #10a37f;
       --tag-color: #f0f2f5;
-      --tag-up-background-color: #dff3e8;
+      --tag-up-background-color: #d7f4ec;
       --tag-down-background-color: #fbe3e1;
       --tag-degraded-background-color: #fff0d5;
     }
-    body {
-      letter-spacing: 0;
-      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-    .container {
-      max-width: 704px !important;
-    }
-    .card {
-      border-radius: 8px !important;
-      box-shadow: none !important;
-    }
-    .manual-components {
-      display: none;
+    * {
       box-sizing: border-box;
-      max-width: 704px;
-      margin: 2rem auto 4rem;
-      padding: 0 1rem;
-      color: #20242a;
+    }
+    body {
+      margin: 0;
       background: #ffffff;
-      border: 1px solid #dfe3e8;
-      border-radius: 8px;
+      color: #202123;
+      letter-spacing: 0;
+      font-family: "Avenir Next", Avenir, "Segoe UI", system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
     }
-    .manual-components--ready {
-      display: block;
+    #sapper {
+      display: none !important;
     }
-    .manual-components__heading {
+    a {
+      color: inherit;
+    }
+    #apemind-status-root {
+      min-height: 100dvh;
       display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 1rem;
-      padding: 1rem 0 0.75rem;
-      border-bottom: 1px solid #dfe3e8;
+      flex-direction: column;
     }
-    .manual-components__heading h2 {
-      margin: 0;
-      font-size: 1.25rem;
+    .site-header,
+    .status-main,
+    .status-footer {
+      width: min(100% - 40px, 670px);
+      margin-inline: auto;
     }
-    .manual-components__heading p {
-      margin: 0;
-      color: #68707b;
-      font-size: 0.875rem;
-    }
-    .manual-component {
+    .site-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 1.5rem;
-      padding: 1rem 0;
-      border-bottom: 1px solid #dfe3e8;
+      min-height: 92px;
+      gap: 24px;
     }
-    .manual-component div {
-      display: grid;
-      gap: 0.2rem;
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: #111214;
+      text-decoration: none;
+      font-size: 23px;
+      font-weight: 650;
     }
-    .manual-component span {
-      color: #68707b;
-      font-size: 0.875rem;
+    .brand img {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
     }
-    .manual-component .manual-component__state {
-      flex: 0 0 auto;
-      color: #146c43;
+    .service-link {
+      padding: 9px 14px;
+      border: 1px solid #d7d7d7;
+      border-radius: 6px;
+      color: #343536;
+      font-size: 14px;
       font-weight: 600;
+      text-decoration: none;
+      transition: background-color 160ms ease, border-color 160ms ease;
+    }
+    .service-link:hover {
+      background: #f6f6f6;
+      border-color: #c7c7c7;
+    }
+    .service-link:focus-visible,
+    .status-footer a:focus-visible {
+      outline: 3px solid rgba(16, 163, 127, 0.24);
+      outline-offset: 3px;
+    }
+    .status-main {
+      flex: 1;
+    }
+    .overview {
+      overflow: hidden;
+      margin-bottom: 24px;
+      border: 1px solid #10a37f;
+      border-radius: 8px;
+    }
+    .overview--down {
+      border-color: #d00e17;
+    }
+    .overview__title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 56px;
+      padding: 15px 16px;
+      background: #d7f4ec;
+    }
+    .overview--down .overview__title {
+      background: #fff0f0;
+    }
+    .overview h1 {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.35;
+      font-weight: 650;
+    }
+    .overview p {
+      margin: 0;
+      padding: 16px;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+    .status-mark {
+      display: inline-grid;
+      flex: 0 0 16px;
+      width: 16px;
+      height: 16px;
+      place-items: center;
+      border-radius: 50%;
+      color: #ffffff;
+      font-size: 11px;
+      line-height: 1;
+      font-weight: 800;
+    }
+    .status-mark--up {
+      background: #10a37f;
+    }
+    .status-mark--down {
+      background: #d00e17;
+    }
+    .systems {
+      overflow: hidden;
+      border: 1px solid #dedede;
+      border-radius: 8px;
+    }
+    .systems__heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      min-height: 54px;
+      padding: 14px 16px;
+      border-bottom: 1px solid #e8e8e8;
+    }
+    .systems__heading h2 {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.4;
+      font-weight: 650;
+    }
+    .systems__heading span {
+      color: #8c8c94;
+      font-size: 13px;
+    }
+    .system-row {
+      padding: 16px;
+      border-bottom: 1px solid #ececec;
+    }
+    .system-row:last-child {
+      border-bottom: 0;
+    }
+    .system-row__headline {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 11px;
+    }
+    .system-row__name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .system-row h3 {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.4;
+      font-weight: 600;
+    }
+    .system-row__meta {
+      display: flex;
+      align-items: baseline;
+      justify-content: flex-end;
+      gap: 10px;
+      color: #909099;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .system-row__meta strong {
+      color: #2d765f;
+      font-weight: 600;
+    }
+    .uptime-bars {
+      display: grid;
+      grid-template-columns: repeat(90, minmax(2px, 1fr));
+      gap: 2px;
+      width: 100%;
+      height: 15px;
+    }
+    .uptime-bar {
+      min-width: 2px;
+      height: 15px;
+      background: #d9d9dc;
+    }
+    .uptime-bar--up {
+      background: #23c197;
+    }
+    .uptime-bar--degraded {
+      background: #f3b61f;
+    }
+    .uptime-bar--down {
+      background: #ed6a5e;
+    }
+    .history-key {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 18px;
+      padding: 14px 2px 0;
+      color: #8c8c94;
+      font-size: 12px;
+    }
+    .history-key span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .key-swatch {
+      display: inline-block;
+      width: 4px;
+      height: 12px;
+      background: #d9d9dc;
+    }
+    .key-swatch--up {
+      background: #23c197;
+    }
+    .key-swatch--degraded {
+      background: #f3b61f;
+    }
+    .status-footer {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      margin-top: 72px;
+      padding: 24px 0 32px;
+      border-top: 1px solid #ececec;
+      color: #8c8c94;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+    .status-footer p {
+      max-width: 500px;
+      margin: 0;
+    }
+    .status-footer a {
+      flex: 0 0 auto;
+      color: #56565e;
+      text-underline-offset: 3px;
+    }
+    .status-loading {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      width: 40px;
+      height: 20px;
+      margin: 160px auto;
+    }
+    .status-loading span {
+      background: #23c197;
+    }
+    @media (max-width: 640px) {
+      .site-header,
+      .status-main,
+      .status-footer {
+        width: min(100% - 28px, 670px);
+      }
+      .site-header {
+        min-height: 76px;
+      }
+      .brand {
+        font-size: 20px;
+      }
+      .brand img {
+        width: 24px;
+        height: 24px;
+      }
+      .service-link {
+        padding: 8px 10px;
+        font-size: 12px;
+      }
+      .system-row__headline {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .system-row__meta {
+        width: 100%;
+        justify-content: space-between;
+        padding-left: 24px;
+        white-space: normal;
+      }
+      .uptime-bars {
+        grid-template-columns: repeat(45, minmax(3px, 1fr));
+        gap: 2px;
+        overflow: hidden;
+      }
+      .uptime-bar:nth-child(-n+45) {
+        display: none;
+      }
+      .status-footer {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 48px;
+      }
     }
     @media (max-width: 640px) {
       .manual-components__heading,
