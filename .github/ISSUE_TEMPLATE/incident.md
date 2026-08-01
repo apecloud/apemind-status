@@ -12,7 +12,7 @@ Investigating
 
 ## Affected component
 
-<!-- Web, API, Chat, or Document Processing & Search -->
+<!-- Web, API Entry, Chat, or Document Processing & Search -->
 
 ## Customer impact
 

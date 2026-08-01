@@ -2,7 +2,7 @@
 
 Public status page for ApeMind's Singapore service.
 
-- Web and API are checked externally every five minutes by GitHub Actions.
+- Web and the API documentation entry are checked externally every five minutes by GitHub Actions.
 - Chat and Document Processing & Search are maintained manually through incident updates.
 - The page is hosted outside the production Kubernetes cluster.
 

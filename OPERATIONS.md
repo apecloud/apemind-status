@@ -5,7 +5,7 @@
 | Component                    | Source                                                   | Public state |
 | ---------------------------- | -------------------------------------------------------- | ------------ |
 | Web                          | External HTTP check of `https://app.apemind.ai/`         | Automatic    |
-| API                          | External HTTP check of `https://app.apemind.ai/api/docs` | Automatic    |
+| API Entry                    | External HTTP check of `https://app.apemind.ai/api/docs` | Automatic    |
 | Chat                         | On-call verification and incident updates                | Manual       |
 | Document Processing & Search | On-call verification and incident updates                | Manual       |
 
@@ -13,7 +13,7 @@ The public page must not include namespaces, Pod names, database names, customer
 
 ## Automated incidents
 
-Upptime checks Web and API every five minutes. A failed check opens or updates a GitHub issue and a successful check closes the automated incident. Before communicating customer impact, the on-call engineer confirms the result from a second network path and checks whether the affected user journey is actually unavailable.
+Upptime checks Web and API Entry every five minutes. API Entry proves that the public API documentation route is reachable; it does not prove that all API business operations are healthy. A failed check opens or updates a GitHub issue and a successful check closes the automated incident. Before communicating customer impact, the on-call engineer confirms the result from a second network path and checks whether the affected user journey is actually unavailable.
 
 ## Manual incidents
 
@@ -31,3 +31,5 @@ Announce planned maintenance before the window. Include only the affected public
 ## Configuration changes
 
 All changes use a pull request. The minimum validation is YAML parsing, formatting, and successful completion of the Upptime setup/site workflows. DNS changes for a custom domain are handled separately from status-page content.
+
+The Upptime version is intentionally pinned. Automated template updates are disabled because they require a long-lived token that can modify workflow files; upgrades use a reviewed pull request instead.
