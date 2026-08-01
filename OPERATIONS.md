@@ -17,12 +17,47 @@ Upptime checks Web and API Entry every five minutes. API Entry proves that the p
 
 ## Manual incidents
 
-1. Confirm the affected public component and the user-visible impact.
-2. Open an issue using the incident template.
-3. Publish a short update with the start time, affected component, impact, and next update time. Do not include internal topology or customer data.
-4. Update the incident when impact or mitigation changes.
-5. Confirm recovery from an external path before closing the incident.
-6. Add a final recovery note and link the internal postmortem only when that document is safe for public access.
+Use this workflow for Chat and Document Processing & Search, or when an
+automatic check is green but a confirmed user journey is impaired.
+
+1. Confirm the affected public component and user-visible impact from an
+   external path. Do not open an incident for an unconfirmed internal alert.
+2. Open a public issue titled `[Incident] <component> - <impact>` and publish
+   an **Investigating** update with the start time, impact, and next update
+   time.
+3. Add an **Identified** update when the cause or mitigation is understood.
+   Include only customer-relevant facts, not internal topology or raw logs.
+4. Add a **Monitoring** update after mitigation and external recovery checks.
+5. Close the issue only after the affected journey is healthy from an external
+   path. The closing comment is a **Resolved** update with the recovery time
+   and final impact window.
+
+Publish an update whenever impact or mitigation changes. If neither changes,
+publish at the next-update time stated in the previous message. Never manually
+close an automated Upptime incident while its external check is still failing.
+
+### Public update template
+
+```text
+Status: Investigating | Identified | Monitoring | Resolved
+Component: <public component name>
+Impact: <what users can or cannot do>
+Started: <UTC timestamp>
+Update: <current customer-relevant fact>
+Next update: <UTC timestamp or "Resolved">
+```
+
+## Incident lifecycle drill
+
+Run this after changing the incident workflow and at least once per release
+cycle. The drill must not change probe targets or production service state.
+
+1. Open a public issue titled `[Drill] Status incident lifecycle - YYYY-MM-DD`.
+   The first line must say `DRILL ONLY - no customer impact`.
+2. Add one comment representing an **Identified** or **Monitoring** update.
+3. Add a **Resolved** comment and close the issue.
+4. Record the issue URL in the delivery receipt. Verify the issue history shows
+   the open, update, and close events in order.
 
 ## Maintenance
 
