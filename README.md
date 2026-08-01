@@ -2,6 +2,8 @@
 
 Public status page for ApeMind's Singapore service.
 
+Live page: <https://status.apemind.ai/>
+
 - Web and the API documentation entry are checked externally every five minutes by GitHub Actions.
 - Chat and Document Processing & Search are maintained manually through incident updates.
 - The page is hosted outside the production Kubernetes cluster.
