@@ -1,31 +1,149 @@
-# Change these first
-owner: upptime # Your GitHub organization or username, where this repository lives
-repo: upptime # The name of this repository
+owner: apecloud
+repo: apemind-status
 
 sites:
-  - name: Google
-    url: https://www.google.com
-  - name: Wikipedia
-    url: https://en.wikipedia.org
-  - name: Hacker News
-    url: https://news.ycombinator.com
-  - name: Secret Site
-    url: $SECRET_SITE
+  - name: Web
+    url: https://app.apemind.ai/
+    expectedStatusCodes:
+      - 200
+  - name: API Entry
+    url: https://app.apemind.ai/api/docs
+    expectedStatusCodes:
+      - 200
 
 status-website:
-  # Add your custom domain name, or remove the `cname` line if you don't have a domain
-  # Uncomment the `baseUrl` line if you don't have a custom domain and add your repo name there
-  cname: demo.upptime.js.org
-  # baseUrl: /your-repo-name
-  logoUrl: https://raw.githubusercontent.com/upptime/upptime.js.org/master/static/img/icon.svg
-  name: Upptime
-  introTitle: "**Upptime** is the open-source uptime monitor and status page, powered entirely by GitHub."
-  introMessage: This is a sample status page which uses **real-time** data from our [GitHub repository](https://github.com/upptime/upptime). No server required — just GitHub Actions, Issues, and Pages. [**Get your own for free**](https://github.com/upptime/upptime)
+  baseUrl: /apemind-status
+  logoUrl: https://apemind.ai/favicon.ico
+  name: ApeMind Status
+  introTitle: ApeMind service status
+  introMessage: External checks run against the Singapore production Web and API endpoints. Chat and document processing are maintained by the on-call team through incident updates.
+  theme: light
   navbar:
     - title: Status
-      href: /
-    - title: GitHub
-      href: https://github.com/$OWNER/$REPO
+      href: /apemind-status/
+    - title: ApeMind
+      href: https://apemind.ai/
+  customBodyHtml: |
+    <section class="manual-components" aria-labelledby="manual-components-title">
+      <div class="manual-components__heading">
+        <h2 id="manual-components-title">Application components</h2>
+        <p>Maintained by the on-call team</p>
+      </div>
+      <div class="manual-component">
+        <div><strong>Chat</strong><span>Conversation and model responses</span></div>
+        <span class="manual-component__state">No active incident</span>
+      </div>
+      <div class="manual-component">
+        <div><strong>Document Processing &amp; Search</strong><span>Upload, processing, indexing, and retrieval</span></div>
+        <span class="manual-component__state">No active incident</span>
+      </div>
+    </section>
+  js: |
+    document.addEventListener("DOMContentLoaded", function () {
+      var components = document.querySelector(".manual-components");
+      var main = document.querySelector("main");
+      if (components && main) {
+        main.appendChild(components);
+        components.classList.add("manual-components--ready");
+      }
+    });
+  css: |
+    :root {
+      --body-background-color: #f7f8fa;
+      --body-text-color: #20242a;
+      --card-background-color: #ffffff;
+      --nav-background-color: #ffffff;
+      --nav-border-bottom-color: #e3e6ea;
+      --nav-current-border-bottom-color: #18794e;
+      --card-border-color: #dfe3e8;
+      --down-border-left-color: #c9372c;
+      --down-background-color: #fff7f6;
+      --degraded-border-left-color: #b86e00;
+      --up-border-left-color: #18794e;
+      --tag-color: #f0f2f5;
+      --tag-up-background-color: #dff3e8;
+      --tag-down-background-color: #fbe3e1;
+      --tag-degraded-background-color: #fff0d5;
+    }
+    body {
+      letter-spacing: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .container {
+      max-width: 704px !important;
+    }
+    .card {
+      border-radius: 8px !important;
+      box-shadow: none !important;
+    }
+    .manual-components {
+      display: none;
+      box-sizing: border-box;
+      max-width: 704px;
+      margin: 2rem auto 4rem;
+      padding: 0 1rem;
+      color: #20242a;
+      background: #ffffff;
+      border: 1px solid #dfe3e8;
+      border-radius: 8px;
+    }
+    .manual-components--ready {
+      display: block;
+    }
+    .manual-components__heading {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem 0 0.75rem;
+      border-bottom: 1px solid #dfe3e8;
+    }
+    .manual-components__heading h2 {
+      margin: 0;
+      font-size: 1.25rem;
+    }
+    .manual-components__heading p {
+      margin: 0;
+      color: #68707b;
+      font-size: 0.875rem;
+    }
+    .manual-component {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      padding: 1rem 0;
+      border-bottom: 1px solid #dfe3e8;
+    }
+    .manual-component div {
+      display: grid;
+      gap: 0.2rem;
+    }
+    .manual-component span {
+      color: #68707b;
+      font-size: 0.875rem;
+    }
+    .manual-component .manual-component__state {
+      flex: 0 0 auto;
+      color: #146c43;
+      font-weight: 600;
+    }
+    @media (max-width: 640px) {
+      .manual-components__heading,
+      .manual-component {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+    }
 
-# Upptime also supports notifications, assigning issues, and more
-# See https://upptime.js.org/docs/configuration
+workflowSchedule:
+  uptime: "*/5 * * * *"
+  responseTime: "0 23 * * *"
+  graphs: "0 0 * * *"
+  summary: "0 0 * * *"
+  staticSite: "0 1 * * *"
+
+commitMessages:
+  commitAuthorName: ApeMind Status Bot
+  commitAuthorEmail: actions@github.com
