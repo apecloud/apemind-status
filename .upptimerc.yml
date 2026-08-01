@@ -23,7 +23,7 @@ status-website:
       href: /apemind-status/
     - title: ApeMind
       href: https://apemind.ai/
-  customFootHtml: |
+  customBodyHtml: |
     <section class="manual-components" aria-labelledby="manual-components-title">
       <div class="manual-components__heading">
         <h2 id="manual-components-title">Application components</h2>
@@ -38,6 +38,15 @@ status-website:
         <span class="manual-component__state">No active incident</span>
       </div>
     </section>
+  js: |
+    document.addEventListener("DOMContentLoaded", function () {
+      var components = document.querySelector(".manual-components");
+      var main = document.querySelector("main");
+      if (components && main) {
+        main.appendChild(components);
+        components.classList.add("manual-components--ready");
+      }
+    });
   css: |
     :root {
       --body-background-color: #f7f8fa;
@@ -68,18 +77,25 @@ status-website:
       box-shadow: none !important;
     }
     .manual-components {
+      display: none;
       box-sizing: border-box;
       max-width: 704px;
       margin: 2rem auto 4rem;
       padding: 0 1rem;
       color: #20242a;
+      background: #ffffff;
+      border: 1px solid #dfe3e8;
+      border-radius: 8px;
+    }
+    .manual-components--ready {
+      display: block;
     }
     .manual-components__heading {
       display: flex;
       align-items: baseline;
       justify-content: space-between;
       gap: 1rem;
-      padding-bottom: 0.75rem;
+      padding: 1rem 0 0.75rem;
       border-bottom: 1px solid #dfe3e8;
     }
     .manual-components__heading h2 {
