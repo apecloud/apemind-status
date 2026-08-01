@@ -39,14 +39,19 @@ status-website:
       </div>
     </section>
   js: |
-    document.addEventListener("DOMContentLoaded", function () {
+    function mountManualComponents() {
       var components = document.querySelector(".manual-components");
       var main = document.querySelector("main");
       if (components && main) {
         main.appendChild(components);
         components.classList.add("manual-components--ready");
       }
-    });
+    }
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", mountManualComponents, { once: true });
+    } else {
+      mountManualComponents();
+    }
   css: |
     :root {
       --body-background-color: #f7f8fa;
