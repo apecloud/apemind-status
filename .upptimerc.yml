@@ -104,7 +104,7 @@ status-website:
           '</section>',
           '<div class="history-key"><span><i class="key-swatch key-swatch--up"></i>Operational</span><span><i class="key-swatch key-swatch--degraded"></i>Partial interruption</span><span><i class="key-swatch key-swatch--unknown"></i>No data</span></div>',
         '</main>',
-        '<footer class="status-footer"><p>Automatic checks run every 5 minutes. Chat and document processing are maintained by the on-call team.</p><a href="https://github.com/apecloud/apemind-status/issues">Incident history</a></footer>'
+        '<footer class="status-footer"><p>Automatic checks are scheduled every 5 minutes. Chat and document processing are maintained by the on-call team.</p><a href="https://github.com/apecloud/apemind-status/issues">Incident history</a></footer>'
       ].join("");
     }
 

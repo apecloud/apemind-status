@@ -13,7 +13,14 @@ The public page must not include namespaces, Pod names, database names, customer
 
 ## Automated incidents
 
-Upptime checks Web and API Entry every five minutes. API Entry proves that the public API documentation route is reachable; it does not prove that all API business operations are healthy. A failed check opens or updates a GitHub issue and a successful check closes the automated incident. Before communicating customer impact, the on-call engineer confirms the result from a second network path and checks whether the affected user journey is actually unavailable.
+Upptime schedules Web and API Entry checks every five minutes. GitHub Actions
+may delay scheduled runs, so this cadence is not a monitoring SLA. API Entry
+proves that the public API documentation route is reachable; it does not prove
+that all API business operations are healthy. A failed check opens or updates
+a GitHub issue and a successful check closes the automated incident. Before
+communicating customer impact, the on-call engineer confirms the result from a
+second network path and checks whether the affected user journey is actually
+unavailable.
 
 ## Manual incidents
 
