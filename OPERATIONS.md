@@ -6,16 +6,55 @@
 
 The Worker forwards only safe cache and content-negotiation request headers. It does not forward cookies or authorization headers to GitHub. Non-GET/HEAD methods return `405`.
 
-Deploy from the repository root:
+The repository lockfile pins Wrangler. Install and validate from the repository
+root before every deployment:
 
 ```bash
-npx wrangler@latest deploy
+npm ci
+npm test
+npm run check:deploy
+npm exec wrangler deploy
 ```
 
-Rollback:
+### Ownership and deployment baseline
 
-1. Set the `status.apemind.ai` DNS record to DNS-only.
-2. Remove the `status.apemind.ai/*` Worker route after direct GitHub Pages HTTPS is valid.
+- Operational owner: ApeMind SG SRE team.
+- Source owner: `apecloud/apemind-status` maintainers through reviewed pull
+  requests.
+- Known-good deployed Worker version:
+  `478ef1ce-f420-4436-975c-8825cc070887`.
+- Known-good `worker/index.mjs` SHA-256:
+  `49b5b7949c3302b38aa31c4ce6b08d465454786ab0ab87e8ef0d1fb1c875e6ae`.
+
+After deployment, record the commit, Worker version, Worker source SHA-256, and
+public HTTPS result in the delivery receipt. Check production drift with:
+
+```bash
+shasum -a 256 worker/index.mjs
+npm exec wrangler deployments status
+npm exec wrangler versions view 478ef1ce-f420-4436-975c-8825cc070887
+curl --fail --show-error --silent --output /dev/null \
+  --write-out '%{http_code} %{ssl_verify_result}\n' \
+  https://status.apemind.ai/
+```
+
+The deployed version must match an approved receipt, the source checksum must
+match that receipt, and the public check must return `200 0`.
+
+### Rollback
+
+Prefer an edge-only rollback to the known-good version so HTTPS remains valid:
+
+```bash
+npm exec wrangler versions deploy \
+  478ef1ce-f420-4436-975c-8825cc070887@100%
+```
+
+If the Cloudflare edge must be bypassed entirely:
+
+1. Confirm direct GitHub Pages HTTPS is valid for `status.apemind.ai`.
+2. Set the existing `status.apemind.ai` DNS record to DNS-only.
+3. Remove the `status.apemind.ai/*` Worker route.
 
 Do not delete the DNS record during rollback.
 
