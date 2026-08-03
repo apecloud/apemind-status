@@ -10,7 +10,15 @@ test("proxies path and query without forwarding credentials", async () => {
   globalThis.fetch = async (request, init) => {
     capturedRequest = request;
     capturedInit = init;
-    return new Response("ok", { status: 200, headers: { "content-type": "text/plain" } });
+    return new Response("ok", {
+      status: 200,
+      headers: {
+        "content-disposition": "attachment",
+        "content-security-policy": "default-src 'none'; sandbox",
+        "content-type": "text/plain",
+        "x-frame-options": "deny",
+      },
+    });
   };
 
   try {
@@ -29,6 +37,9 @@ test("proxies path and query without forwarding credentials", async () => {
     assert.deepEqual(capturedInit.cf, { cacheEverything: true, cacheTtl: 60 });
     assert.equal(await response.text(), "ok");
     assert.equal(response.headers.get("content-type"), "text/javascript; charset=utf-8");
+    assert.match(response.headers.get("content-security-policy"), /script-src 'self' 'unsafe-inline' blob:/);
+    assert.equal(response.headers.get("content-disposition"), null);
+    assert.equal(response.headers.get("x-frame-options"), null);
     assert.equal(response.headers.get("strict-transport-security"), "max-age=31536000; includeSubDomains");
   } finally {
     globalThis.fetch = originalFetch;

@@ -48,6 +48,16 @@ function buildResponse(upstreamResponse, path, status = upstreamResponse.status)
   const type = contentType(path);
   if (type) headers.set("content-type", type);
 
+  headers.delete("content-disposition");
+  headers.delete("content-security-policy");
+  headers.delete("content-security-policy-report-only");
+  headers.delete("cross-origin-resource-policy");
+  headers.delete("x-frame-options");
+  headers.set(
+    "content-security-policy",
+    "default-src 'self'; script-src 'self' 'unsafe-inline' blob: https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://apemind.ai https://raw.githubusercontent.com https://icons.duckduckgo.com; connect-src 'self' https://api.github.com https://raw.githubusercontent.com; manifest-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
+  );
+  headers.set("referrer-policy", "strict-origin-when-cross-origin");
   headers.set("strict-transport-security", "max-age=31536000; includeSubDomains");
   headers.set("x-content-type-options", "nosniff");
 
