@@ -27,9 +27,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  pr-worker-contract:
-    name: PR Worker contract
-    if: github.event_name == 'pull_request'
+  github-hosted-worker-contract:
+    name: GitHub-hosted Worker contract
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -49,9 +49,9 @@ jobs:
       - name: Validate Worker bundle
         run: npm run check:deploy
 
-  trusted-worker-contract:
-    name: Trusted Worker contract
-    if: github.event_name != 'pull_request'
+  trusted-manual-worker-contract:
+    name: Trusted manual Worker contract
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master'
     runs-on: self-hosted
     timeout-minutes: 10
     steps:
