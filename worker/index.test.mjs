@@ -63,6 +63,27 @@ test("maps the root request to the published index", async () => {
   }
 });
 
+test("keeps absolute-looking paths on the fixed GitHub origin", async () => {
+  const originalFetch = globalThis.fetch;
+  const urls = [];
+  globalThis.fetch = async (request) => {
+    urls.push(request.url);
+    return new Response("ok", { status: 200 });
+  };
+
+  try {
+    await worker.fetch(new Request("https://status.apemind.ai/https://example.com/private?x=1"));
+    await worker.fetch(new Request("https://status.apemind.ai//example.com/private?x=2"));
+
+    assert.deepEqual(urls, [
+      "https://raw.githubusercontent.com/apecloud/apemind-status/gh-pages/https://example.com/private?x=1",
+      "https://raw.githubusercontent.com/apecloud/apemind-status/gh-pages/example.com/private?x=2",
+    ]);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test("serves the published 404 document for missing paths", async () => {
   const originalFetch = globalThis.fetch;
   const urls = [];

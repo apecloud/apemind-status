@@ -16,7 +16,8 @@ function assetPath(request) {
 }
 
 function buildUpstreamRequest(request, path = assetPath(request)) {
-  const upstreamUrl = new URL(path, UPSTREAM_ROOT);
+  // Keep absolute-looking user paths below the fixed GitHub origin.
+  const upstreamUrl = new URL(`${UPSTREAM_ROOT}${path}`);
   const headers = new Headers();
 
   for (const name of SAFE_REQUEST_HEADERS) {
