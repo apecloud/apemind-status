@@ -1,0 +1,17 @@
+{
+  "name": "apemind-status-edge",
+  "private": true,
+  "scripts": {
+    "check:deploy": "wrangler deploy --dry-run",
+    "test": "node --test worker/index.test.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "4.118.0"
+  },
+  "overrides": {
+    "undici": "7.29.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
