@@ -21,10 +21,15 @@ npm exec wrangler deploy
 - Operational owner: ApeMind SG SRE team.
 - Source owner: `apecloud/apemind-status` maintainers through reviewed pull
   requests.
-- Known-good deployed Worker version:
+- Current pre-fix deployed Worker version:
   `478ef1ce-f420-4436-975c-8825cc070887`.
-- Known-good `worker/index.mjs` SHA-256:
+- Current pre-fix `worker/index.mjs` SHA-256:
   `49b5b7949c3302b38aa31c4ce6b08d465454786ab0ab87e8ef0d1fb1c875e6ae`.
+
+The pre-fix version accepts absolute-looking paths that can escape the fixed
+GitHub origin. It is an audit baseline, not an approved security rollback.
+After deploying the fixed source, the delivery receipt must name the new
+approved rollback version and source SHA-256.
 
 After deployment, record the commit, Worker version, Worker source SHA-256, and
 public HTTPS result in the delivery receipt. Check production drift with:
@@ -32,7 +37,7 @@ public HTTPS result in the delivery receipt. Check production drift with:
 ```bash
 shasum -a 256 worker/index.mjs
 npm exec wrangler deployments status
-npm exec wrangler versions view 478ef1ce-f420-4436-975c-8825cc070887
+npm exec wrangler versions view <approved-version-id>
 curl --fail --show-error --silent --output /dev/null \
   --write-out '%{http_code} %{ssl_verify_result}\n' \
   https://status.apemind.ai/
@@ -43,11 +48,13 @@ match that receipt, and the public check must return `200 0`.
 
 ### Rollback
 
-Prefer an edge-only rollback to the known-good version so HTTPS remains valid:
+Prefer an edge-only rollback to the approved version in the latest delivery
+receipt so HTTPS remains valid. Do not roll back to the pre-fix
+`478ef1ce-f420-4436-975c-8825cc070887` version.
 
 ```bash
 npm exec wrangler versions deploy \
-  478ef1ce-f420-4436-975c-8825cc070887@100%
+  <approved-version-id>@100%
 ```
 
 If the Cloudflare edge must be bypassed entirely:
