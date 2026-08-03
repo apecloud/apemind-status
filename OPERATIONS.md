@@ -1,5 +1,24 @@
 # Status Page Operations
 
+## Cloudflare HTTPS edge
+
+`status.apemind.ai` is served through the `apemind-status-edge` Cloudflare Worker. The Worker fetches the existing Upptime publication from the public `gh-pages` branch through `raw.githubusercontent.com`, so GitHub Actions remain the source of status updates while Cloudflare terminates public HTTPS.
+
+The Worker forwards only safe cache and content-negotiation request headers. It does not forward cookies or authorization headers to GitHub. Non-GET/HEAD methods return `405`.
+
+Deploy from the repository root:
+
+```bash
+npx wrangler@latest deploy
+```
+
+Rollback:
+
+1. Set the `status.apemind.ai` DNS record to DNS-only.
+2. Remove the `status.apemind.ai/*` Worker route after direct GitHub Pages HTTPS is valid.
+
+Do not delete the DNS record during rollback.
+
 ## Components
 
 | Component                    | Source                                                   | Public state |
