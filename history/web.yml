@@ -1,7 +1,7 @@
 url: https://app.apemind.ai/
-status: down
-code: 503
-responseTime: 47895
-lastUpdated: 2026-09-22T08:28:59.318Z
+status: up
+code: 200
+responseTime: 2303
+lastUpdated: 2026-09-22T08:44:05.733Z
 startTime: 2026-08-01T15:46:05.431Z
 generator: Upptime <https://github.com/upptime/upptime>
