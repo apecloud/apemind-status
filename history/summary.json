@@ -5,16 +5,16 @@
     "icon": "https://icons.duckduckgo.com/ip3/app.apemind.ai.ico",
     "slug": "web",
     "status": "up",
-    "uptime": "99.98%",
+    "uptime": "99.99%",
     "uptimeDay": "100.00%",
     "uptimeWeek": "100.00%",
     "uptimeMonth": "99.97%",
-    "uptimeYear": "99.98%",
-    "time": 2369,
-    "timeDay": 1620,
-    "timeWeek": 1656,
-    "timeMonth": 3168,
-    "timeYear": 2369,
+    "uptimeYear": "99.99%",
+    "time": 2374,
+    "timeDay": 2811,
+    "timeWeek": 1798,
+    "timeMonth": 3201,
+    "timeYear": 2374,
     "dailyMinutesDown": {
       "2026-09-22": 15
     }
@@ -30,11 +30,11 @@
     "uptimeWeek": "100.00%",
     "uptimeMonth": "99.97%",
     "uptimeYear": "99.99%",
-    "time": 893,
-    "timeDay": 332,
-    "timeWeek": 889,
-    "timeMonth": 781,
-    "timeYear": 893,
+    "time": 907,
+    "timeDay": 2055,
+    "timeWeek": 1042,
+    "timeMonth": 808,
+    "timeYear": 907,
     "dailyMinutesDown": {
       "2026-09-22": 15
     }
