@@ -4,20 +4,20 @@
     "url": "https://app.apemind.ai/",
     "icon": "https://icons.duckduckgo.com/ip3/app.apemind.ai.ico",
     "slug": "web",
-    "status": "down",
-    "uptime": "99.98%",
-    "uptimeDay": "99.98%",
-    "uptimeWeek": "100.00%",
-    "uptimeMonth": "99.96%",
-    "uptimeYear": "99.98%",
-    "time": 2358,
-    "timeDay": 1933,
-    "timeWeek": 1705,
-    "timeMonth": 3134,
-    "timeYear": 2358,
+    "status": "up",
+    "uptime": "99.96%",
+    "uptimeDay": "98.44%",
+    "uptimeWeek": "99.78%",
+    "uptimeMonth": "99.91%",
+    "uptimeYear": "99.96%",
+    "time": 2350,
+    "timeDay": 1865,
+    "timeWeek": 1708,
+    "timeMonth": 3091,
+    "timeYear": 2350,
     "dailyMinutesDown": {
       "2026-09-22": 15,
-      "2026-10-11": 0
+      "2026-10-11": 22
     }
   },
   {
@@ -25,20 +25,20 @@
     "url": "https://app.apemind.ai/api/docs",
     "icon": "https://icons.duckduckgo.com/ip3/app.apemind.ai.ico",
     "slug": "api-entry",
-    "status": "down",
-    "uptime": "99.99%",
-    "uptimeDay": "100.00%",
-    "uptimeWeek": "100.00%",
-    "uptimeMonth": "99.97%",
-    "uptimeYear": "99.99%",
-    "time": 908,
-    "timeDay": 1533,
-    "timeWeek": 1038,
-    "timeMonth": 814,
-    "timeYear": 908,
+    "status": "up",
+    "uptime": "99.96%",
+    "uptimeDay": "98.45%",
+    "uptimeWeek": "99.78%",
+    "uptimeMonth": "99.92%",
+    "uptimeYear": "99.96%",
+    "time": 911,
+    "timeDay": 1390,
+    "timeWeek": 1045,
+    "timeMonth": 823,
+    "timeYear": 911,
     "dailyMinutesDown": {
       "2026-09-22": 15,
-      "2026-10-11": 0
+      "2026-10-11": 22
     }
   }
 ]
